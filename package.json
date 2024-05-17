@@ -1,0 +1,32 @@
+{
+  "name": "sports_community_platform",
+  "version": "1.0.0",
+  "description": "this is the backend part for sports community platform",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/samriddhipl/Sports-Community-Platform.git"
+  },
+  "keywords": [
+    "sports",
+    "social-media",
+    "community-platform"
+  ],
+  "author": "Samriddhi Paudel",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/samriddhipl/Sports-Community-Platform/issues"
+  },
+  "homepage": "https://github.com/samriddhipl/Sports-Community-Platform#readme",
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.3.5"
+  }
+}
