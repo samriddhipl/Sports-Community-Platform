@@ -1,6 +1,11 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const { connectToMongoDB } = require("./connection");
+const staticRouter = require("./routes/staticRoute");
+const userRouter = require("./routes/user");
+const { checkForAuthenticatoin } = require("./middlewares/auth");
+const cookieParser = require("cookie-parser");
+const dotenv = require("dotenv");
 
 const app = express();
 
@@ -10,7 +15,15 @@ connectToMongoDB("mongodb://localhost:27017/sports-community-platform").then(
   }
 );
 
-const PORT = 3000;
-app.listen(3000, () => {
+app.use(express.json());
+
+app.use(cookieParser());
+
+app.use("/", staticRouter);
+app.use("/user", userRouter);
+
+app.use(checkForAuthenticatoin);
+
+app.listen(process.env.PORT, () => {
   console.log("Server is running!");
 });
