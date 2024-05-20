@@ -1,5 +1,5 @@
 const User = require("../../models/user");
-const { setUser} = require("../../service/auth");
+const { setUser } = require("../../service/auth");
 const bcrypt = require("bcrypt");
 
 //Signup
@@ -51,8 +51,6 @@ async function handleUserLogin(req, res) {
     if (!user) {
       return res.status(404).json({ status: "User doesn't exist." });
     }
-
-    console.log(password);
 
     const isMatch = await bcrypt.compare(password, user.password);
 
