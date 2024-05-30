@@ -71,6 +71,26 @@ const eventSchema = new mongoose.Schema(
         username: {
           type: String,
         },
+        points: { type: Number, default: 0 },
+      },
+    ],
+    teams: [
+      {
+        members: [
+          {
+            userId: {
+              type: mongoose.Schema.Types.ObjectId,
+              ref: "User",
+            },
+            username: {
+              type: String,
+            },
+          },
+        ],
+        totalPoints: {
+          type: Number,
+          default: 0,
+        },
       },
     ],
   },

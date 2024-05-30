@@ -8,6 +8,7 @@ const {
   handleDeleteEvent,
 } = require("../controllers/event/event");
 const { handleApplyEvent } = require("../controllers/event/eventApplication");
+const { handleTeamFormation } = require("../controllers/team/teamFormation");
 
 router.post("/", handlePostEvent);
 router.get("/", handleGetAllEvents);
@@ -17,5 +18,8 @@ router.delete("/:eventId", handleDeleteEvent);
 
 //apply to event
 router.post("/apply/:eventId", handleApplyEvent);
+
+//team formation
+router.post("/team/:eventId", handleTeamFormation);
 
 module.exports = router;

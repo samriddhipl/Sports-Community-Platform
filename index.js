@@ -7,6 +7,7 @@ const eventRouter = require("./routes/event");
 const { checkForAuthenticatoin } = require("./middlewares/auth");
 const cookieParser = require("cookie-parser");
 const dotenv = require("dotenv");
+const cors = require("cors");
 
 const app = express();
 
@@ -16,6 +17,7 @@ connectToMongoDB("mongodb://localhost:27017/sports-community-platform").then(
   }
 );
 
+app.use(cors());
 app.use(express.json());
 
 app.use(cookieParser());

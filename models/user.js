@@ -35,6 +35,11 @@ const userSchema = new mongoose.Schema(
     categories: [{ type: String }], // Array of categories the user likes
     followers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     following: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    level: {
+      type: Number,
+      default: 1,
+    },
+    points: { type: Number, default: 0 },
   },
   { timestamps: true }
 );
