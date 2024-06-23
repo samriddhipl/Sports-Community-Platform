@@ -1,6 +1,5 @@
 const Event = require("../../models/eventModel");
 
-//form team and post 
 async function handleTeamFormation(req, res) {
   const { eventId } = req.params;
 
@@ -13,20 +12,23 @@ async function handleTeamFormation(req, res) {
     const participantsArray = event.participants;
     const numOfTeams = event.noOfTeamsRequired;
 
+    // Sort participants by points in descending order
     participantsArray.sort((a, b) => b.points - a.points);
 
+    // Initialize teams
     const teams = Array.from({ length: numOfTeams }, () => ({
       members: [],
       totalPoints: 0,
     }));
 
-    participantsArray.forEach((participant) => {
-      let teamWithLowestPoints = teams.reduce((prev, curr) => {
-        return prev.totalPoints < curr.totalPoints ? prev : curr;
-      });
+    // Randomize the starting point
+    let startIndex = Math.floor(Math.random() * numOfTeams);
 
-      teamWithLowestPoints.members.push(participant);
-      teamWithLowestPoints.totalPoints += participant.points;
+    // Distribute participants among teams
+    participantsArray.forEach((participant, index) => {
+      let teamIndex = (startIndex + index) % numOfTeams;
+      teams[teamIndex].members.push(participant);
+      teams[teamIndex].totalPoints += participant.points;
     });
 
     event.teams = teams;
@@ -38,7 +40,5 @@ async function handleTeamFormation(req, res) {
     return res.status(500).json({ status: "Server error" });
   }
 }
-
-//get teams
 
 module.exports = { handleTeamFormation };

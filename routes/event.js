@@ -24,6 +24,6 @@ router.delete("/:eventId", handleDeleteEvent);
 router.post("/apply/:eventId", handleApplyEvent);
 
 // Team formation
-router.post("/team/:eventId", handleTeamFormation);
+router.get("/team/:eventId", handleTeamFormation);
 
 module.exports = router;

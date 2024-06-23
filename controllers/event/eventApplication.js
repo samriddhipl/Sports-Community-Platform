@@ -6,7 +6,7 @@ const dotenv = require("dotenv");
 dotenv.config();
 const getTokenFromHeader = async (req) => {
   const authHeader = await req.headers["authorization"];
-  console.log(authHeader);
+ 
   if (!authHeader) {
     return null;
   }

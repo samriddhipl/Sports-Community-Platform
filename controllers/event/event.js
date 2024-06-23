@@ -7,7 +7,7 @@ const dotenv = require("dotenv");
 dotenv.config();
 const getTokenFromHeader = async (req) => {
   const authHeader = await req.headers["authorization"];
-  console.log(authHeader);
+
   if (!authHeader) {
     return null;
   }
@@ -19,7 +19,7 @@ const getTokenFromHeader = async (req) => {
 
 // Create event endpoint
 async function handlePostEvent(req, res) {
-  const token = getTokenFromHeader(req);
+  const token = await getTokenFromHeader(req);
 
   if (!token) {
     return res.status(401).json({ status: "Unauthorized" });
@@ -80,7 +80,6 @@ async function handleGetAllEvents(req, res) {
 
 async function getAuthenticatedUserEvents(req, res) {
   const token = await getTokenFromHeader(req);
-  console.log(token);
 
   try {
     const user = await getUser(token);
@@ -108,7 +107,9 @@ async function getHomePageEvents(req, res) {
     }
 
     // Correct query to find events not organized by the authenticated user
-    const userEvents = await Event.find({ organizerUsername: { $ne: user.username } });
+    const userEvents = await Event.find({
+      organizerUsername: { $ne: user.username },
+    });
 
     return res.status(200).json(userEvents);
   } catch (error) {
@@ -116,7 +117,6 @@ async function getHomePageEvents(req, res) {
     return res.status(500).json({ status: "Server error" });
   }
 }
-
 
 //get event by eventID
 async function handleGetEventById(req, res) {
