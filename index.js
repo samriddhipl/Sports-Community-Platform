@@ -4,10 +4,11 @@ const { connectToMongoDB } = require("./connection");
 const staticRouter = require("./routes/staticRoute");
 const userRouter = require("./routes/user");
 const eventRouter = require("./routes/event");
-const { checkForAuthenticatoin } = require("./middlewares/auth");
+const { checkForAuthentication } = require("./middlewares/auth");
 const cookieParser = require("cookie-parser");
 const dotenv = require("dotenv");
 const cors = require("cors");
+const bodyParser = require("body-parser");
 
 const app = express();
 
@@ -17,15 +18,20 @@ connectToMongoDB("mongodb://localhost:27017/sports-community-platform").then(
   }
 );
 
-app.use(cors());
-app.use(express.json());
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    credentials: true,
+  })
+);
 
+app.use(express.json());
 app.use(cookieParser());
 
 app.use("/", staticRouter);
 app.use("/user", userRouter);
 
-app.use(checkForAuthenticatoin);
+app.use(checkForAuthentication);
 app.use("/event", eventRouter);
 
 app.listen(process.env.PORT, () => {

@@ -18,9 +18,10 @@ async function getUser(token) {
   try {
     if (!token) return null;
 
-    return jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = await jwt.verify(token, process.env.JWT_SECRET);
+    return decoded;
   } catch (err) {
-    console.error("Error verifying JWT:", error.message);
+    console.error("Error verifying JWT:", err.message);
     return null;
   }
 }

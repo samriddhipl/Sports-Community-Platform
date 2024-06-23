@@ -1,24 +1,29 @@
 const Event = require("../../models/eventModel");
 const { getUser } = require("../../service/auth");
 const User = require("../../models/user");
+const jwt = require("jsonwebtoken");
+const dotenv = require("dotenv");
 
-//Create event
+dotenv.config();
+const getTokenFromHeader = async (req) => {
+  const authHeader = await req.headers["authorization"];
+  console.log(authHeader);
+  if (!authHeader) {
+    return null;
+  }
+
+  const token = authHeader.split(" ")[1]; // Split Bearer and token
+
+  return token || null;
+};
+
+// Create event endpoint
 async function handlePostEvent(req, res) {
-  const {
-    title,
-    description,
-    date,
-    time,
-    city,
-    country,
-    noOfTeamsRequired,
-    noOfPlayersRequired,
-    slotsLeft,
-    photo,
-    categories,
-  } = req.body;
+  const token = getTokenFromHeader(req);
 
-  const token = req.cookies.token;
+  if (!token) {
+    return res.status(401).json({ status: "Unauthorized" });
+  }
 
   try {
     const user = await getUser(token);
@@ -26,6 +31,20 @@ async function handlePostEvent(req, res) {
     if (!user) {
       return res.status(401).json({ status: "Not Authenticated" });
     }
+
+    const {
+      title,
+      description,
+      date,
+      time,
+      city,
+      country,
+      noOfTeamsRequired,
+      noOfPlayersRequired,
+      slotsLeft,
+      photo,
+      categories,
+    } = req.body;
 
     const event = await Event.create({
       title,
@@ -44,6 +63,7 @@ async function handlePostEvent(req, res) {
 
     return res.status(201).json({ status: "Event Posted!", event });
   } catch (error) {
+    console.error("Error creating event:", error);
     return res.status(500).json({ error: "Server Error" });
   }
 }
@@ -57,6 +77,46 @@ async function handleGetAllEvents(req, res) {
     return res.status(500).json({ error: error.message });
   }
 }
+
+async function getAuthenticatedUserEvents(req, res) {
+  const token = await getTokenFromHeader(req);
+  console.log(token);
+
+  try {
+    const user = await getUser(token);
+
+    if (!user) {
+      return res.status(401).json({ status: "Not Authenticated" });
+    }
+
+    const userEvents = await Event.find({ organizerUsername: user.username });
+
+    return res.status(200).json(userEvents);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ status: "Server error" });
+  }
+}
+
+async function getHomePageEvents(req, res) {
+  try {
+    const token = await getTokenFromHeader(req);
+    const user = await getUser(token);
+
+    if (!user) {
+      return res.status(401).json({ status: "Not Authenticated" });
+    }
+
+    // Correct query to find events not organized by the authenticated user
+    const userEvents = await Event.find({ organizerUsername: { $ne: user.username } });
+
+    return res.status(200).json(userEvents);
+  } catch (error) {
+    console.error("Error fetching homepage events:", error);
+    return res.status(500).json({ status: "Server error" });
+  }
+}
+
 
 //get event by eventID
 async function handleGetEventById(req, res) {
@@ -176,4 +236,6 @@ module.exports = {
   handleGetEventById,
   handleUpdateEvent,
   handleDeleteEvent,
+  getAuthenticatedUserEvents,
+  getHomePageEvents,
 };

@@ -61,7 +61,7 @@ async function handleUserLogin(req, res) {
     const token = setUser(user);
 
     res.cookie("token", token, { httpOnly: true });
-    return res.json({ status: "Login Success" });
+    return res.json({ status: "Login Success", token: token });
   } catch (err) {
     console.log(err);
     return res.status(500).json({ error: err });

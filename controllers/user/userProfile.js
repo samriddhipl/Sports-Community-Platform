@@ -1,22 +1,42 @@
 const User = require("../../models/user");
 const { setUser, getUser } = require("../../service/auth");
+const jwt = require("jsonwebtoken");
+const dotenv = require("dotenv");
+
+dotenv.config();
+const getTokenFromHeader = async (req) => {
+  const authHeader = await req.headers["authorization"];
+  console.log(authHeader);
+  if (!authHeader) {
+    return null;
+  }
+
+  const token = authHeader.split(" ")[1]; // Split Bearer and token
+
+  return token || null;
+};
 
 //Get authenticated user's profile
 async function handleGetUserProfile(req, res) {
   try {
-    const token = await req.cookies.token;
+    const token = await getTokenFromHeader(req); // Retrieve token from cookies
 
-    const user = await getUser(token);
-
-    const existingUser = await User.findOne({ email: user.email });
+    const user = await getUser(token); // Get user from token
 
     if (!user) {
-      return res.json({ Status: "Login required" });
+      return res.status(401).json({ status: "Login required" });
+    }
+
+    const existingUser = await User.findOne({ email: user.email }); // Find user in the database
+
+    if (!existingUser) {
+      return res.status(404).json({ status: "User not found" });
     }
 
     return res.json(existingUser);
   } catch (error) {
-    res.status(500).json({ error: error });
+    console.error(error);
+    return res.status(500).json({ error: error.message });
   }
 }
 

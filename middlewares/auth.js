@@ -1,18 +1,27 @@
 const { getUser } = require("../service/auth");
 
-async function checkForAuthenticatoin(req, res, next) {
-  const tokenCookie = req.cookies?.token;
+async function checkForAuthentication(req, res, next) {
+  const authHeader = req.headers["authorization"];
+  const tokenCookie = authHeader.split(" ")[1]; 
 
   if (!tokenCookie) {
-    res.end("Not authenticated");
-    return next();
+    return res.status(401).json({ message: "Not authenticated" });
   }
 
-  const token = tokenCookie;
-  const user = getUser(token);
+  try {
+    const user = await getUser(tokenCookie); // Await getUser function
 
-  req.user = user;
-  next();
+    if (!user) {
+      return res.status(401).json({ message: "Invalid token" });
+    }
+
+    // Attach user object to request for further processing
+    req.user = user;
+    next();
+  } catch (error) {
+    console.error("Error verifying token:", error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
 }
 
-module.exports = { checkForAuthenticatoin };
+module.exports = { checkForAuthentication };

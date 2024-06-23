@@ -1,9 +1,24 @@
 const Event = require("../../models/eventModel");
 const { getUser } = require("../../service/auth");
+const jwt = require("jsonwebtoken");
+const dotenv = require("dotenv");
+
+dotenv.config();
+const getTokenFromHeader = async (req) => {
+  const authHeader = await req.headers["authorization"];
+  console.log(authHeader);
+  if (!authHeader) {
+    return null;
+  }
+
+  const token = authHeader.split(" ")[1]; // Split Bearer and token
+
+  return token || null;
+};
 
 async function handleApplyEvent(req, res) {
-  const eventId = req.params.eventId;
-  const token = req.cookies.token;
+  const eventId = await req.params.eventId;
+  const token = await getTokenFromHeader(req);
 
   try {
     const user = await getUser(token);
