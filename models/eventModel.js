@@ -26,6 +26,14 @@ const eventSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    latitude: {
+      type: Number,
+      required: true,
+    },
+    longitude: {
+      type: Number,
+      required: true,
+    },
     noOfTeamsRequired: {
       type: Number,
       required: true,
@@ -60,6 +68,11 @@ const eventSchema = new mongoose.Schema(
         username: {
           type: String,
         },
+        points: { type: Number, default: 0 },
+        experience: {
+          type: Number,
+          default: 0,
+        },
       },
     ],
     participants: [
@@ -71,11 +84,18 @@ const eventSchema = new mongoose.Schema(
         username: {
           type: String,
         },
-        points: { type: Number, default: 0 },
+        points: { type: Number, default: 1 },
+        experience: {
+          type: Number,
+          default: 0,
+        },
       },
     ],
     teams: [
       {
+        id: {
+          type: Number,
+        },
         members: [
           {
             userId: {
@@ -85,14 +105,26 @@ const eventSchema = new mongoose.Schema(
             username: {
               type: String,
             },
+            points: {
+              type: Number,
+            },
           },
         ],
         totalPoints: {
           type: Number,
           default: 0,
         },
+        totalExperience: {
+          type: Number,
+          default: 0,
+        },
       },
     ],
+    winner: {
+      type: Number,
+      default: null,
+    },
+  
   },
   { timestamps: true }
 );

@@ -2,6 +2,7 @@ const { getUser } = require("../service/auth");
 
 async function checkForAuthentication(req, res, next) {
   const authHeader = req.headers["authorization"];
+
   const tokenCookie = authHeader.split(" ")[1]; 
 
   if (!tokenCookie) {
@@ -9,13 +10,15 @@ async function checkForAuthentication(req, res, next) {
   }
 
   try {
-    const user = await getUser(tokenCookie); // Await getUser function
+    const user = await getUser(tokenCookie); 
+    
+  
 
     if (!user) {
       return res.status(401).json({ message: "Invalid token" });
     }
 
-    // Attach user object to request for further processing
+    
     req.user = user;
     next();
   } catch (error) {

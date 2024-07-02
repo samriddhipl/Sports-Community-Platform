@@ -32,14 +32,30 @@ const userSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
-    categories: [{ type: String }], // Array of categories the user likes
-    followers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
-    following: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    latitude: {
+      type: Number,
+      default: 27.7172,
+    },
+    longitude: {
+      type: Number,
+      default: 85.324,
+    },
+    categories: [{ type: String }],
+    followers: {
+      type: Array,
+    },
+    following: {
+      type: Array,
+    },
     level: {
       type: Number,
       default: 1,
     },
-    points: { type: Number, default: 0 },
+    points: { type: Number, default: 1 },
+    experience: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true }
 );

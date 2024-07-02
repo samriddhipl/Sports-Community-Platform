@@ -12,7 +12,7 @@ const getTokenFromHeader = async (req) => {
     return null;
   }
 
-  const token = authHeader.split(" ")[1]; // Split Bearer and token
+  const token = authHeader.split(" ")[1]; 
 
   return token || null;
 };

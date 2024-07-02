@@ -1,9 +1,24 @@
 const User = require("../../models/user");
 const { getUser } = require("../../service/auth");
+const dotenv = require("dotenv");
+
+dotenv.config();
+
+const getTokenFromHeader = async (req) => {
+  const authHeader = await req.headers["authorization"];
+
+  if (!authHeader) {
+    return null;
+  }
+
+  const token = authHeader.split(" ")[1];
+
+  return token || null;
+};
 
 //follow another user
 async function followUser(req, res) {
-  const token = req.cookies.token;
+  const token = await getTokenFromHeader(req);
   const { usernameToFollow } = req.params;
 
   try {
@@ -51,7 +66,7 @@ async function followUser(req, res) {
 
 //unfollow another user
 async function unfollowUser(req, res) {
-  const token = req.cookies.token;
+  const token = await getTokenFromHeader(req);
   const { usernameToUnfollow } = req.params;
 
   try {
@@ -135,10 +150,36 @@ async function handleGetAllFollowing(req, res) {
     return res.status(500).json({ status: "Server error" });
   }
 }
+async function checkFollowingStatus(req, res) {
+  const token = await getTokenFromHeader(req);
+  const { usernameToCheck } = req.params;
+
+  try {
+    const curr = await getUser(token);
+    const currentUser = await User.findOne({ username: curr.username });
+
+    const user = await User.findOne({ username: usernameToCheck });
+
+    if (!currentUser) {
+      return res.status(401).json({ status: "Login required" });
+    }
+    console.log(currentUser);
+
+    console.log(typeof(currentUser.following))
+
+    const isFollowing = currentUser.following.includes(user._id);
+
+    return res.json({ isFollowing });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ status: "Server error" });
+  }
+}
 
 module.exports = {
   followUser,
   unfollowUser,
   handleGetAllFollowers,
   handleGetAllFollowing,
+  checkFollowingStatus,
 };

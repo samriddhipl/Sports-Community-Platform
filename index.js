@@ -10,6 +10,7 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const leaderboardRouter = require("./routes/leaderboard");
+const searchRouter = require("./routes/search");
 
 const app = express();
 
@@ -35,6 +36,7 @@ app.use("/user", userRouter);
 app.use(checkForAuthentication);
 app.use("/event", eventRouter);
 app.use("/leaderboard", leaderboardRouter);
+app.use("/search", searchRouter);
 
 app.listen(process.env.PORT, () => {
   console.log("Server is running!");

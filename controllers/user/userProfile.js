@@ -11,23 +11,22 @@ const getTokenFromHeader = async (req) => {
     return null;
   }
 
-  const token = authHeader.split(" ")[1]; // Split Bearer and token
-
+  const token = authHeader.split(" ")[1]; 
   return token || null;
 };
 
 //Get authenticated user's profile
 async function handleGetUserProfile(req, res) {
   try {
-    const token = await getTokenFromHeader(req); // Retrieve token from cookies
+    const token = await getTokenFromHeader(req);
 
-    const user = await getUser(token); // Get user from token
+    const user = await getUser(token); 
 
     if (!user) {
       return res.status(401).json({ status: "Login required" });
     }
 
-    const existingUser = await User.findOne({ email: user.email }); // Find user in the database
+    const existingUser = await User.findOne({ email: user.email }); 
 
     if (!existingUser) {
       return res.status(404).json({ status: "User not found" });
@@ -68,6 +67,12 @@ async function handleGetAnotherUserProfile(req, res) {
     console.error(error);
     return res.status(500).json({ message: "Server error" });
   }
+}
+
+async function getUserId(req, res){
+const username = req.params.username;
+const user = await User.findOne({ username });
+res.json({userId: user._id});
 }
 
 //Update the profile of authenticated user
@@ -115,4 +120,5 @@ module.exports = {
   handleGetUserProfile,
   handleGetAnotherUserProfile,
   handleUpdateUserProfile,
+  getUserId
 };

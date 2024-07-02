@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
 
 dotenv.config();
+
 const getTokenFromHeader = async (req) => {
   const authHeader = await req.headers["authorization"];
 
@@ -12,7 +13,7 @@ const getTokenFromHeader = async (req) => {
     return null;
   }
 
-  const token = authHeader.split(" ")[1]; // Split Bearer and token
+  const token = authHeader.split(" ")[1];
 
   return token || null;
 };
@@ -44,6 +45,8 @@ async function handlePostEvent(req, res) {
       slotsLeft,
       photo,
       categories,
+      latitude,
+      longitude,
     } = req.body;
 
     const event = await Event.create({
@@ -59,6 +62,8 @@ async function handlePostEvent(req, res) {
       organizerUsername: user.username,
       photo,
       categories,
+      latitude,
+      longitude,
     });
 
     return res.status(201).json({ status: "Event Posted!", event });
@@ -106,7 +111,6 @@ async function getHomePageEvents(req, res) {
       return res.status(401).json({ status: "Not Authenticated" });
     }
 
-    // Correct query to find events not organized by the authenticated user
     const userEvents = await Event.find({
       organizerUsername: { $ne: user.username },
     });
@@ -223,12 +227,87 @@ async function handleDeleteEvent(req, res) {
 
     return res.status(200).json({ status: "Event was deleted." });
   } catch (error) {
-    console.error("Error occurred:", error); // Added logging for better debugging
+    console.error("Error occurred:", error);
     return res
       .status(500)
       .json({ status: "Error occurred", error: error.message });
   }
 }
+
+const handleGetParticularUsersEvent = async (req, res) => {
+  const token = await getTokenFromHeader(req);
+
+  if (!token) {
+    return res.status(401).json({ status: "Unauthorized" });
+  }
+
+  try {
+    const user = await getUser(token);
+
+    if (!user) {
+      return res.status(401).json({ status: "Unauthorized" });
+    }
+
+    const userId = req.params.userId;
+
+    if (!userId) {
+      return res.status(400).json({ error: "UserId parameter is required" });
+    }
+    const requiredUser = await User.find({ _id: userId });
+
+    if (!requiredUser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const events = await Event.find({
+      organizerUsername: requiredUser[0].username,
+    });
+
+    if (events.length === 0) {
+      return res.status(404).json({ error: "No events found for this user" });
+    }
+
+    return res.status(200).json(events);
+  } catch (error) {
+    console.error("Error fetching user's events:", error);
+    return res
+      .status(500)
+      .json({ status: "Server error", error: error.message });
+  }
+};
+
+const handleGetRecommendedEvents = async (req, res) => {
+  try {
+    const token = await getTokenFromHeader(req);
+    console.log(token);
+
+    if (!token) {
+      return res.status(401).json({ status: "Unauthorized" });
+    }
+
+    const user = await getUser(token);
+
+    if (!user) {
+      return res.status(401).json({ status: "Unauthorized" });
+    }
+
+    const now = new Date();
+    const userCategories = user.categories || [];
+     console.log(user.username)
+    const recommendedEvents = await Event.find({
+      organizerUsername: !user.username,
+      date: { $gte: now },
+      categories: { $in: userCategories },
+    });
+
+    res.status(200).json(recommendedEvents);
+  } catch (error) {
+    console.error("Error fetching recommended events:", error);
+    return res.status(500).json({ error: "Server Error" });
+  }
+};
+
+module.exports = { handleGetRecommendedEvents };
 
 module.exports = {
   handlePostEvent,
@@ -238,4 +317,6 @@ module.exports = {
   handleDeleteEvent,
   getAuthenticatedUserEvents,
   getHomePageEvents,
+  handleGetRecommendedEvents,
+  handleGetParticularUsersEvent,
 };
